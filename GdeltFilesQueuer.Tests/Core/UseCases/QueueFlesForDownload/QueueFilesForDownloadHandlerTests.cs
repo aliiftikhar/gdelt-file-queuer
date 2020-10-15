@@ -69,6 +69,34 @@ namespace GdeltFilesQueuer.Tests.Core.UseCases.QueueFlesForDownload
         }
 
         [Test]
+        public void ArgumentException_when_start_date_is_less_than_1979()
+        {
+            var sut = new QueueFilesForDownloadHandler(logger.Object, queueService.Object);
+
+            var request = new QueueFilesForDownloadRequest
+            {
+                StartDate = new DateTime(1978, 12, 31),
+                EndDate = new DateTime(2020, 01, 10)
+            };
+
+            Assert.ThrowsAsync<ArgumentException>(() => sut.Handle(request));
+        }
+
+        [Test]
+        public void ArgumentException_when_end_date_is_today()
+        {
+            var sut = new QueueFilesForDownloadHandler(logger.Object, queueService.Object);
+
+            var request = new QueueFilesForDownloadRequest
+            {
+                StartDate = new DateTime(2020, 02, 10),
+                EndDate = DateTime.Now
+            };
+
+            Assert.ThrowsAsync<ArgumentException>(() => sut.Handle(request));
+        }
+
+        [Test]
         public async Task Handler_should_queue_correct_number_of_messages()
         {
             queueService.Setup(x => x.Queue(It.IsAny<Message>())).Returns(Task.CompletedTask);

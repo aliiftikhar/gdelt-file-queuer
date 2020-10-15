@@ -19,6 +19,8 @@ namespace GdeltFilesQueuer.Core.UseCases.QueueFilesForDownload
 
         public async Task Handle(QueueFilesForDownloadRequest request)
         {
+            this.logger.LogInformation($"{DateTime.UtcNow} - QueueFilesForDownloadRequest started");
+
             ValidateRequest(request);
 
             string downloadUrlFormat = "http://data.gdeltproject.org/events/{0}.export.CSV.zip";
@@ -35,11 +37,13 @@ namespace GdeltFilesQueuer.Core.UseCases.QueueFilesForDownload
                 };
 
                 tasks.Add(this.queueService.Queue(message));
-
-                this.logger.LogInformation($"Message Queued: {downloadUrl}");
             }
 
+            this.logger.LogInformation($"{DateTime.UtcNow} - Number of Message Queued: {tasks.Count}");
+
             await Task.WhenAll(tasks.ToArray());
+
+            this.logger.LogInformation($"{DateTime.UtcNow} - QueueFilesForDownloadRequest ended");
         }
 
         private void ValidateRequest(QueueFilesForDownloadRequest request)
@@ -53,8 +57,14 @@ namespace GdeltFilesQueuer.Core.UseCases.QueueFilesForDownload
             if (request.EndDate == null || request.EndDate == DateTime.MinValue)
                 throw new ArgumentNullException(nameof(request.EndDate));
 
+            if(request.StartDate.Year < 1979)
+                throw new ArgumentException("Start Date can not be less than 1979");
+
+            if (request.EndDate >= DateTime.Today)
+                throw new ArgumentException("End Date should be less than today");
+
             if (request.StartDate > request.EndDate)
-                throw new ArgumentException("Start Date caan not be greater than End Date");
+                throw new ArgumentException("Start Date can not be greater than End Date");
         }
 
         private string GenerateFileName(DateTime date)
