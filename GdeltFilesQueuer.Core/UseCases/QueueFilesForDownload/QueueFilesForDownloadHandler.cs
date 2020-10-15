@@ -19,7 +19,7 @@ namespace GdeltFilesQueuer.Core.UseCases.QueueFilesForDownload
 
         public async Task Handle(QueueFilesForDownloadRequest request)
         {
-            this.logger.LogInformation($"{DateTime.UtcNow} - QueueFilesForDownloadRequest started");
+            LogMessage("QueueFilesForDownloadRequest started");
 
             ValidateRequest(request);
 
@@ -29,7 +29,7 @@ namespace GdeltFilesQueuer.Core.UseCases.QueueFilesForDownload
 
             for(var date = request.StartDate; date <= request.EndDate; date = date.AddDays(1))
             {
-                string downloadUrl = string.Format(downloadUrlFormat, $"{GenerateFileName(date)}");
+                string downloadUrl = string.Format(downloadUrlFormat, $"{date:yyyyMMdd}");
 
                 var message = new Message
                 {
@@ -39,11 +39,16 @@ namespace GdeltFilesQueuer.Core.UseCases.QueueFilesForDownload
                 tasks.Add(this.queueService.Queue(message));
             }
 
-            this.logger.LogInformation($"{DateTime.UtcNow} - Number of Message Queued: {tasks.Count}");
+            LogMessage($"Number of Message Queued: {tasks.Count}");
 
             await Task.WhenAll(tasks.ToArray());
 
-            this.logger.LogInformation($"{DateTime.UtcNow} - QueueFilesForDownloadRequest ended");
+            LogMessage("QueueFilesForDownloadRequest ended");
+        }
+
+        private void LogMessage(string message)
+        {
+            this.logger.LogInformation($"{DateTime.UtcNow} - {message}");
         }
 
         private void ValidateRequest(QueueFilesForDownloadRequest request)
@@ -57,30 +62,14 @@ namespace GdeltFilesQueuer.Core.UseCases.QueueFilesForDownload
             if (request.EndDate == null || request.EndDate == DateTime.MinValue)
                 throw new ArgumentNullException(nameof(request.EndDate));
 
-            if(request.StartDate.Year < 1979)
-                throw new ArgumentException("Start Date can not be less than 1979");
+            if(request.StartDate < new DateTime(2013, 04, 01))
+                throw new ArgumentException("Start Date can not be less than 01APR2013");
 
             if (request.EndDate >= DateTime.Today)
                 throw new ArgumentException("End Date should be less than today");
 
             if (request.StartDate > request.EndDate)
                 throw new ArgumentException("Start Date can not be greater than End Date");
-        }
-
-        private string GenerateFileName(DateTime date)
-        {
-            if (date > new DateTime(2013, 3, 31))
-            {
-                return date.ToString("yyyyMMdd");
-            }
-            else if (date > new DateTime(2005, 12, 31))
-            {
-                return date.ToString("yyyyMM");
-            }
-            else
-            {
-                return date.ToString("yyyy");
-            }
         }
     }
 }

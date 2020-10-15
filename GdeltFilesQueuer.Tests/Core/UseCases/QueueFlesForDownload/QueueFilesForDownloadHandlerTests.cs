@@ -69,13 +69,13 @@ namespace GdeltFilesQueuer.Tests.Core.UseCases.QueueFlesForDownload
         }
 
         [Test]
-        public void ArgumentException_when_start_date_is_less_than_1979()
+        public void ArgumentException_when_start_date_is_less_than_01APR2013()
         {
             var sut = new QueueFilesForDownloadHandler(logger.Object, queueService.Object);
 
             var request = new QueueFilesForDownloadRequest
             {
-                StartDate = new DateTime(1978, 12, 31),
+                StartDate = new DateTime(2013, 03, 31),
                 EndDate = new DateTime(2020, 01, 10)
             };
 
@@ -132,42 +132,6 @@ namespace GdeltFilesQueuer.Tests.Core.UseCases.QueueFlesForDownload
             queueService.Verify(x => x.Queue(It.Is<Message>(y => string.Equals(y.DownloadUrl, "http://data.gdeltproject.org/events/20130401.export.CSV.zip"))), Times.Exactly(1));
             queueService.Verify(x => x.Queue(It.Is<Message>(y => string.Equals(y.DownloadUrl, "http://data.gdeltproject.org/events/20130402.export.CSV.zip"))), Times.Exactly(1));
             queueService.Verify(x => x.Queue(It.Is<Message>(y => string.Equals(y.DownloadUrl, "http://data.gdeltproject.org/events/20130403.export.CSV.zip"))), Times.Exactly(1));
-        }
-
-        [Test]
-        public async Task Handler_should_queue_message_with_yyyyMM_format()
-        {
-            queueService.Setup(x => x.Queue(It.IsAny<Message>())).Returns(Task.CompletedTask);
-
-            var sut = new QueueFilesForDownloadHandler(logger.Object, queueService.Object);
-
-            var request = new QueueFilesForDownloadRequest
-            {
-                StartDate = new DateTime(2006, 01, 01),
-                EndDate = new DateTime(2006, 01, 03)
-            };
-
-            await sut.Handle(request);
-
-            queueService.Verify(x => x.Queue(It.Is<Message>(y => string.Equals(y.DownloadUrl, "http://data.gdeltproject.org/events/200601.export.CSV.zip"))), Times.Exactly(3));
-        }
-
-        [Test]
-        public async Task Handler_should_queue_message_with_yyyy_format()
-        {
-            queueService.Setup(x => x.Queue(It.IsAny<Message>())).Returns(Task.CompletedTask);
-
-            var sut = new QueueFilesForDownloadHandler(logger.Object, queueService.Object);
-
-            var request = new QueueFilesForDownloadRequest
-            {
-                StartDate = new DateTime(2005, 12, 29),
-                EndDate = new DateTime(2005, 12, 31)
-            };
-
-            await sut.Handle(request);
-
-            queueService.Verify(x => x.Queue(It.Is<Message>(y => string.Equals(y.DownloadUrl, "http://data.gdeltproject.org/events/2005.export.CSV.zip"))), Times.Exactly(3));
         }
     }
 }
