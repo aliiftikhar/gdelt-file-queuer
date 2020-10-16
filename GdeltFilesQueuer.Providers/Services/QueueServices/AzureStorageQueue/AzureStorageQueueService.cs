@@ -2,6 +2,7 @@
 using GdeltFilesQueuer.Core.Services.QueueService;
 using Microsoft.Extensions.Options;
 using System;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -27,7 +28,10 @@ namespace GdeltFilesQueuer.Providers.Services.QueueServices.AzureStorageQueue
 
         public async Task Queue(Message message)
         {
-            await queueClient.SendMessageAsync(JsonSerializer.Serialize(message));
+            await queueClient.SendMessageAsync(
+                Convert.ToBase64String(
+                    Encoding.UTF8.GetBytes(
+                        JsonSerializer.Serialize(message))));
         }
     }
 }
