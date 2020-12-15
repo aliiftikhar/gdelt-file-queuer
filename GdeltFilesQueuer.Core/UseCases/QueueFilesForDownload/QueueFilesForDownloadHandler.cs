@@ -31,7 +31,7 @@ namespace GdeltFilesQueuer.Core.UseCases.QueueFilesForDownload
             {
                 string downloadUrl = string.Format(downloadUrlFormat, $"{date:yyyyMMdd}");
 
-                var message = new Message
+                var message = new QueueMessage
                 {
                     DownloadUrl = downloadUrl
                 };
@@ -39,7 +39,7 @@ namespace GdeltFilesQueuer.Core.UseCases.QueueFilesForDownload
                 tasks.Add(this.queueService.Queue(message));
             }
 
-            LogMessage($"Number of Message Queued: {tasks.Count}");
+            LogMessage($"Number of Messages Queued: {tasks.Count}");
 
             await Task.WhenAll(tasks.ToArray());
 

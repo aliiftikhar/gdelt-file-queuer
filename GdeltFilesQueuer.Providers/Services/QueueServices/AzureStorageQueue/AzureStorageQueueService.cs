@@ -26,7 +26,7 @@ namespace GdeltFilesQueuer.Providers.Services.QueueServices.AzureStorageQueue
             queueClient = new QueueClient(this.azureStorageQueueConfiguration.ConnectionString, this.azureStorageQueueConfiguration.QueueName);
         }
 
-        public async Task Queue(Message message)
+        public async Task Queue<T>(T message)
         {
             var base64EncodeddMessage = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message)));
 

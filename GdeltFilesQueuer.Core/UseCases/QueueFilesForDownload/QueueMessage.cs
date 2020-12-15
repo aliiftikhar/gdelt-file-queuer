@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace GdeltFilesQueuer.Core.Services.QueueService
+namespace GdeltFilesQueuer.Core.UseCases.QueueFilesForDownload
 {
-    public class Message
+    public class QueueMessage
     {
         public string DownloadUrl { get; set; }
     }

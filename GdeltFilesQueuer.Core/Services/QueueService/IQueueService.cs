@@ -4,6 +4,6 @@ namespace GdeltFilesQueuer.Core.Services.QueueService
 {
     public interface IQueueService
     {
-        Task Queue(Message message);
+        Task Queue<T>(T message);
     }
 }

@@ -99,7 +99,7 @@ namespace GdeltFilesQueuer.Tests.Core.UseCases.QueueFlesForDownload
         [Test]
         public async Task Handler_should_queue_correct_number_of_messages()
         {
-            queueService.Setup(x => x.Queue(It.IsAny<Message>())).Returns(Task.CompletedTask);
+            queueService.Setup(x => x.Queue(It.IsAny<QueueMessage>())).Returns(Task.CompletedTask);
 
             var sut = new QueueFilesForDownloadHandler(logger.Object, queueService.Object);
 
@@ -111,13 +111,13 @@ namespace GdeltFilesQueuer.Tests.Core.UseCases.QueueFlesForDownload
 
             await sut.Handle(request);
 
-            queueService.Verify(x => x.Queue(It.IsAny<Message>()), Times.Exactly(10));
+            queueService.Verify(x => x.Queue(It.IsAny<QueueMessage>()), Times.Exactly(10));
         }
 
         [Test]
         public async Task Handler_should_queue_message_with_yyyyMMdd_format()
         {
-            queueService.Setup(x => x.Queue(It.IsAny<Message>())).Returns(Task.CompletedTask);
+            queueService.Setup(x => x.Queue(It.IsAny<QueueMessage>())).Returns(Task.CompletedTask);
 
             var sut = new QueueFilesForDownloadHandler(logger.Object, queueService.Object);
 
@@ -129,9 +129,9 @@ namespace GdeltFilesQueuer.Tests.Core.UseCases.QueueFlesForDownload
 
             await sut.Handle(request);
 
-            queueService.Verify(x => x.Queue(It.Is<Message>(y => string.Equals(y.DownloadUrl, "http://data.gdeltproject.org/events/20130401.export.CSV.zip"))), Times.Exactly(1));
-            queueService.Verify(x => x.Queue(It.Is<Message>(y => string.Equals(y.DownloadUrl, "http://data.gdeltproject.org/events/20130402.export.CSV.zip"))), Times.Exactly(1));
-            queueService.Verify(x => x.Queue(It.Is<Message>(y => string.Equals(y.DownloadUrl, "http://data.gdeltproject.org/events/20130403.export.CSV.zip"))), Times.Exactly(1));
+            queueService.Verify(x => x.Queue(It.Is<QueueMessage>(y => string.Equals(y.DownloadUrl, "http://data.gdeltproject.org/events/20130401.export.CSV.zip"))), Times.Exactly(1));
+            queueService.Verify(x => x.Queue(It.Is<QueueMessage>(y => string.Equals(y.DownloadUrl, "http://data.gdeltproject.org/events/20130402.export.CSV.zip"))), Times.Exactly(1));
+            queueService.Verify(x => x.Queue(It.Is<QueueMessage>(y => string.Equals(y.DownloadUrl, "http://data.gdeltproject.org/events/20130403.export.CSV.zip"))), Times.Exactly(1));
         }
     }
 }
